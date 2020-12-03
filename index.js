@@ -141,6 +141,7 @@ io.on('connection', function (socket) {
     
     if (addedUser) {
       console.log("user already added");
+      socket.emit('invalid name', "userOnline");
       return;
     }
 

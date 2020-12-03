@@ -1,5 +1,11 @@
 # QueueCue
 
+### KNOWN BUGS
+
+* being Pos2 in the Queue and then going to Pos1 gives sound notification for next in line
+* doesn't handle reconnect
+* Safari does not handle jQuery fades (results in broken UX, does not work) 
+
 ### CHANGELOG
 
 12.02:  
@@ -11,7 +17,6 @@
     * **h** to queue up
     * **d** for direct reply
     * **n** for next if mod
-    * **m** to become mod
     
 13.02
   * usernames are now **unique** and have to be longer than 2 chars
@@ -20,3 +25,6 @@
   * username confirm button
   * own queue position highlighted
   * cant reply to self anymore, cant queue when speaking
+  * actually buttons are hidden when user is speaking
+  * speaker may now also trigger next (so modless is theoretically possible)
+    * buttons are hidden and shown depending on state

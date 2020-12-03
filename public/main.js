@@ -22,6 +22,7 @@
   var $buttons = $('.buttonArea');
   var $raiseHand = $('.raiseHand');
   var $directHand = $('.directHand');
+  var $nextButton = $('.nextButton');
   
 
   var $loginPage = $('.login.page'); // The login page
@@ -64,10 +65,10 @@
       if(event.key == "h" && username) raiseHand();  
       if(event.key == "d" && username) directHand();  
       // if(event.key == "m") makeMeMod();  
-      if(event.key == "n" && isMod) nextSpeaker();  
+      
+      if(event.key == "n" && ( isMod || speaker == username) ) nextSpeaker();  
     }
   });
-    
     
   // ################# AUDIO    ###################################################
   var nextSound, speakSound;
@@ -88,7 +89,7 @@
       $raiseHand.fadeOut();
       $directHand.fadeOut();
       $chatArea.show();
-      $buttons.append('<button class="button nextButton" onclick="nextSpeaker()">⏭️ (N)ext</button>');
+      $nextButton.show();
     }
   }
 
@@ -109,7 +110,7 @@
       }
       pos = 999; // name not in queue
     }
-    console.log("queue position: ", pos);
+    // console.log("queue position: ", pos);
     return pos;
   }
 
@@ -211,39 +212,60 @@
   function updateSpeaker (data) {
     // TODO: if clause to filter twice in a row and self-reply
     if(data.isDirect && data.speaking == username){
+      // speaking direct now
+      console.log("speaking direct now");
       speakSound.play();
-      directRaised = false;    
+      directRaised = false;  
       $directHand.removeClass("active");
+      $nextButton.fadeOut();
+      $raiseHand.fadeIn();
+      $directHand.fadeOut();
     } else if (!data.isDirect && data.speaking == username){
+      // speaking regular now
+      console.log("speaking regular now");
       speakSound.play();
       handRaised = false;
       $raiseHand.removeClass("active");
+      $nextButton.fadeIn();
+      $raiseHand.fadeOut();
+      $directHand.fadeOut();
     }
     
-
-    
+    // console.log("speaker: ", speaker, " username: ", username, "mod", isMod);    
     
     if(data.isDirect){
         //clear replyer div
         $reply.empty();
         replyer = data.speaking;
         if(data.speaking == "") return;
-        console.log("updating replyer: ", replyer);
+        // console.log("updating replyer: ", replyer);
         $reply.append('<p> 🙌 Reply: <br>' + replyer + '</p>');
     } else {
         speaker = data.speaking;
-        console.log("updating speaker: ", speaker);
+        // console.log("updating speaker: ", speaker);
         //clear speaker and replyer divs
         $reply.empty();
         replyer = ""
         $speaker.empty();
         if(data.speaking == "") return;
         $speaker.append('<p> Speaker: <br>' + speaker + '</p>');
-    } 
+    }
+    
+    if (!isMod && speaker != username && replyer != username) {
+      // not speaking (anymore)
+      console.log("not speaking (anymore)");
+      $nextButton.fadeOut();
+      $raiseHand.fadeIn();
+      $directHand.fadeIn();
+    }
   }
 
   function nextSpeaker() {
-    socket.emit('next hand');
+    if(username == speaker || isMod) {
+      socket.emit('next hand');
+    } else {
+      console.log("not speaker or mod", speaker, username, isMod);
+    }
   }
 
 // ###############################################################################
@@ -272,7 +294,6 @@
     // If the username is valid
     if (username) {
       // Tell the server your username
-      if(username == "mod") makeMeMod();
       socket.emit('add user', username);
       // verifyUsername();
     }
@@ -280,10 +301,12 @@
   
   // username is unique
   function verifyUsername () {
+      $nextButton.hide();
+      if(username == "mod") makeMeMod();
       $loginPage.fadeOut();
+      $loginPage.off('click');
       $chatPage.show();
       $chatArea.hide();
-      $loginPage.off('click');
       $currentInput = $inputMessage.focus();
   }
 
@@ -523,5 +546,6 @@
     username = false;
     $error.empty();
     if(data == "inUse") $error.append("This name is already in use");
+    if(data == "userOnline") $error.append("welp, this sucks");
   });
 // });

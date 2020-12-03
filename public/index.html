@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Socket.IO Chat Example</title>
+  <title>queueCue</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,6 +25,7 @@
       <div class="buttonArea">
         <button class="button raiseHand" onclick="raiseHand()"> <span style="font-size: 6em">✋</span> <br> raise (H)and</button>
         <button class="button directHand" onclick="directHand()"><span style="font-size: 6em">🙌</span> <br> (D)irect reply</button>
+        <button class="button nextButton" onclick="nextSpeaker()"><span style="font-size: 6em">⏭️</span> <br> (N)ext</button>
       </div>
     </div>
     
@@ -34,6 +35,7 @@
         <h5 class="error">  </h5>
         <input class="usernameInput" type="text" maxlength="14" />
         <br>
+<!--         <button class="button confirmName" type="submit" onclick="setUsername()">confirm</button> -->
         <button class="button confirmName" onclick="setUsername()">confirm</button>
       </div>
     </div>
