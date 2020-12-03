@@ -1,8 +1,22 @@
-# Socket.IO Chat
-A simple [chat demo](https://github.com/socketio/socket.io/tree/master/examples/chat) using the  [socket.io](http://socket.io/) real-time bidirectional event library for Node.js.
+# QueueCue
 
-Multiple users can join a chat room by each entering a unique username
-when the website loads. Users can type chat messages to the room, and a notification is sent to all users when another user joins or leaves.
+### CHANGELOG
 
-
-![](https://cdn.glitch.com/d5323c5b-d1fd-4d39-97ac-c5d8b4cfd3f8%2FsocketIOChatGIF.gif)
+12.02:  
+  * added seperate display areas for speaker and replyer  
+  * replyer gets cleared on new speaker
+  * added favicon queue position & speaking display
+  * user now gets cleared from speaking & direct on disconnect
+  * added keyboard shortcuts 
+    * **h** to queue up
+    * **d** for direct reply
+    * **n** for next if mod
+    * **m** to become mod
+    
+13.02
+  * usernames are now **unique** and have to be longer than 2 chars
+  * hopefully didnt introduce a bunch of bugs
+  * rudimentary grid layout
+  * username confirm button
+  * own queue position highlighted
+  * cant reply to self anymore, cant queue when speaking

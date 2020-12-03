@@ -1,37 +1,24 @@
 /* Fix user-agent */
 
-.speakerArea {
-  position: absolute;
-  top: 5%;
-  left: 50%;
-  height: 10%;
-  width: 45%;
-}
 
-.handsArea {
-  position: absolute;
-  top: 20%;
-  left: 50%;
-  height: 60%;
-  width: 45%;
-}
 
 .replyHand {
   font-weight: bold;
   font-size: 1.1em;
 }
 
-.buttonArea {
-  position: absolute;
-  top: 90%;
-  left: 50%;
-  height: 8%;
-  width: 45%;
-}
 
-#button {
+.button {
   height: 99%;
   width: 32%;
+}
+
+.active {
+  background-color: lightgreen;
+}
+
+.error {
+  color: #db291d;
 }
 
 * {
@@ -40,6 +27,7 @@
 
 html {
   font-weight: 300;
+  font-size: 1.4em;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -124,8 +112,75 @@ ul {
 
 .chat.page {
   display: none;
+  display: grid;
+  grid-template-rows: 1fr 2fr 1fr;
+  grid-template-columns: 1fr 1fr;
 }
 
+.speakerArea {
+  font-size: 2em;
+  grid-column: 1;
+  place-self: center;
+  text-align: center;
+  height: 90%;
+  width: 90%;
+}
+
+.replyArea {
+  font-size: 2em;
+  grid-column: 2;
+  place-self: center;
+  text-align: center;
+  height: 90%;
+  width: 90%;
+}
+
+.handsArea {
+  grid-row: 2/3;
+  grid-column: 1/3;
+  margin: 5%;
+  font-size: 1.6em;
+}
+
+.buttonArea {
+  grid-column: 1/3;
+  grid-row: 3;
+  display: grid;
+  align-items: stretch;
+  margin: 10px;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr 1fr;
+}
+
+.raiseHand {
+  grid-column: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.directHand {
+  grid-column: 2;
+  width: 100%;
+  height: 100%;
+}
+
+.nextButton {
+  grid-column: 1/3;
+  width:100%;
+}
+
+.confirmName{
+  margin: 30px;
+  width: 30%;
+  height: 80%;
+}
+
+
+.ownHand {
+    font-weight: bold;
+    font-size: 1.2em;
+    background-color: yellow;
+}
 /* Font */
 
 .messages {

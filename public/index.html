@@ -6,36 +6,45 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <ul class="pages">
-    <li class="chat page">
+  <div class="pages">
+    <div class="chat page">
       <div class="chatArea">
         <ul class="messages"></ul>
       </div>
       <div class="speakerArea">
         Speaker: nobody (yet)
       </div>
-
+      <div class="replyArea">
+        
+      </div>
       <div class="handsArea">
         <h3>
           Hands
         </h3>
       </div>
       <div class="buttonArea">
-        <button id="button" onclick="raiseHand()">✋</button>
-        <button id="button" onclick="directHand()">👋</button>
+        <button class="button raiseHand" onclick="raiseHand()"> <span style="font-size: 6em">✋</span> <br> raise (H)and</button>
+        <button class="button directHand" onclick="directHand()"><span style="font-size: 6em">🙌</span> <br> (D)irect reply</button>
       </div>
-    </li>
+    </div>
     
-    <li class="login page">
+    <div class="login page">
       <div class="form">
         <h3 class="title">What's your nickname?</h3>
+        <h5 class="error">  </h5>
         <input class="usernameInput" type="text" maxlength="14" />
+        <br>
+        <button class="button confirmName" onclick="setUsername()">confirm</button>
       </div>
-    </li>
-  </ul>
+    </div>
+  </div>
 
   <script src="https://code.jquery.com/jquery-2.2.2.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
+  <script src="/favico.js"></script>
   <script src="/main.js"></script>
+  <script> 
+
+  </script>
 </body>
 </html>

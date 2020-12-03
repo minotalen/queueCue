@@ -13,10 +13,16 @@
   var $window = $(window);
   var $usernameInput = $('.usernameInput'); // Input for username
   var $messages = $('.messages'); // Messages area
+  var $error = $('.error'); // Login Error area
   var $inputMessage = $('.inputMessage'); // Input message input box
+  var $chatArea = $('.chatArea');  // hands display box
   var $hands = $('.handsArea');  // hands display box
   var $speaker = $('.speakerArea');  // hands display box
+  var $reply = $('.replyArea');  // hands display box
   var $buttons = $('.buttonArea');
+  var $raiseHand = $('.raiseHand');
+  var $directHand = $('.directHand');
+  
 
   var $loginPage = $('.login.page'); // The login page
   var $chatPage = $('.chat.page'); // The chatroom page
@@ -25,9 +31,15 @@
 
   // Prompt for setting a username
   var username;
+  var isMod = false;
   var connected = false;
   var typing = false;
+  // person who is current speaker
   var speaker = "";
+  // person who is currently replying
+  var replyer = "";
+
+  var currentPos = 999;
   var handRaised = false;
   var directRaised = false;
   
@@ -37,72 +49,196 @@
   var socket = io();
 
 
+  var favicon=new Favico({
+    type : 'rectangle',
+    animation:'slide',
+    bgColor: '#DA81F5',
+    textColor:'#000'
+  });
+
+
+  // ################# KEYBOARD ###################################################
+
+  $window.keydown(function(event) {
+    if($chatPage.is(':visible')){
+      if(event.key == "h" && username) raiseHand();  
+      if(event.key == "d" && username) directHand();  
+      // if(event.key == "m") makeMeMod();  
+      if(event.key == "n" && isMod) nextSpeaker();  
+    }
+  });
+    
+    
+  // ################# AUDIO    ###################################################
+  var nextSound, speakSound;
+  $(document).ready(function() {
+    nextSound = document.createElement('audio');
+    nextSound.setAttribute('src', 'https://cdn.glitch.com/19a8c08b-3360-4881-8fc4-9fc8748478ce%2Fsharp-592.mp3?v=1606959394544');
+    
+    speakSound = document.createElement('audio');
+    speakSound.setAttribute('src', 'https://cdn.glitch.com/19a8c08b-3360-4881-8fc4-9fc8748478ce%2Fjust-saying-593.mp3?v=1606959395695'); 
+  });
+
+
   // ###############################################################################
   function makeMeMod () {
-    console.log("You are now a moderator...")
-    $buttons.append('<button id="button" onclick="nextSpeaker()">⏭️</button>');
+    if(!isMod){
+      isMod = true;
+      console.log("You are now a moderator...");
+      $raiseHand.fadeOut();
+      $directHand.fadeOut();
+      $chatArea.show();
+      $buttons.append('<button class="button nextButton" onclick="nextSpeaker()">⏭️ (N)ext</button>');
+    }
   }
 
+  // function changePageTitle(input) {
+  //   document.title = input;      
+  // }
+
+  // finds the user position in the combined queue
+  function findPosInQueue(name, replyArray, handsArray) {
+    let pos = 0;
+    let fullArray = replyArray.concat(handsArray);  // joins the two arrays
+    // console.log(fullArray, name);
+    if(fullArray.length == 0) return 998; // nobody in the queue
+    for(let i = 0; i < fullArray.length; i++) {
+      if(fullArray[i] == name){
+        pos = i // position in the queue (starting at 0 for first)
+        break;
+      }
+      pos = 999; // name not in queue
+    }
+    console.log("queue position: ", pos);
+    return pos;
+  }
+
+  // sets the text of the title based on queue position
+  function titleText(pos) {
+    let speakUp = "!!!! SPEAK !!!!";
+    let firstPos = "!!! Next in the queue !!!";
+    let notQueued = "Not in the queue.";
+    let emptyQueue = "queue is empty"
+    if(pos == 0) {
+      document.title = firstPos;      
+    } else if(pos == 999) {
+      document.title = notQueued;      
+    } else if(pos == 998) {
+      document.title = emptyQueue; 
+    } else {
+      document.title = `Position ${pos+1} in the queue.`
+    }
+    
+    if(speaker == username || replyer == username ) {
+      document.title = speakUp;
+      favicon.badge("!!!");
+      return;
+    }
+    console.log("position in queue: ", pos, "   previous position: ", currentPos);
+    // NOTIFICATION SOUNDS
+    if(currentPos == 1 && pos == 0) nextSound.play();
+    
+    
+    if(pos < 10 && pos != currentPos) {
+      favicon.badge(pos+1);
+    }
+    if(pos == 998 || pos == 999) favicon.badge(0);
+    currentPos = pos;
+  }
+
+  // raise or lower user hand, add/remove from queue
   function raiseHand () {
     console.log("hand raise clicked", handRaised)
-    if(!handRaised) {
-      // tell server to raise user hand
-      socket.emit('raise hand');
-      console.log("raising hand");
-      handRaised = true;
-    } else {
-      socket.emit('lower hand');
-      console.log("hand lowered");
-      handRaised = false;
+    if(speaker != username) {
+      if(!handRaised) {
+        // tell server to raise user hand
+        socket.emit('raise hand');
+        console.log("raising hand");
+        handRaised = true;
+        $raiseHand.addClass("active");
+      } else {
+        socket.emit('lower hand');
+        console.log("hand lowered");
+        handRaised = false;
+        $raiseHand.removeClass("active");
+      }
     }
   }
 
   function directHand () {
     console.log("direct reply clicked", directRaised)
-    if(!directRaised) {
-      // tell server to raise user hand
-      socket.emit('raise reply');
-      console.log("instant reply");
-      directRaised = true;
-    } else {
-      socket.emit('lower reply');
-      console.log("instant reply");
-      directRaised = false;
+    if(speaker != username) {
+      if(!directRaised) {
+        // tell server to raise user hand
+        socket.emit('raise reply');
+        console.log("instant reply");
+        directRaised = true;
+        $directHand.addClass("active");
+      } else {
+        socket.emit('lower reply');
+        console.log("instant reply");
+        directRaised = false;
+        $directHand.removeClass("active");
+      }
     }
   }
 
 
   function updateHands (replyArray, handsArray) {
     $hands.empty();
-    console.log(handsArray);
-      $hands.append('<h3> Hands </h3>');
-    if(replyArray >= 1) $hands.append('<h4> Replies </h4>');
+    // console.log(handsArray);
+      $hands.append('<h3> Hands: </h3>');
+    // if(replyArray >= 1) $hands.append('<h4> Replies </h4>');
     for(let i = 0; i < replyArray.length; i++) {
-      $hands.append("<div class='replyHand'> 👋" + cleanInput(replyArray[i])) + "</div>";
+      if(cleanInput(replyArray[i]) == username) {
+        $hands.append("<div class='replyHand ownHand'> 🙌" + cleanInput(replyArray[i])) + "</div>";
+      } else {
+        $hands.append("<div class='replyHand'> 🙌" + cleanInput(replyArray[i])) + "</div>";
+      }
     }
 
     for(let i = 0; i < handsArray.length; i++) {
-      $hands.append("<div class='singleHand'>" + cleanInput(handsArray[i])) + "</div>";
-    }
-  }
-
-  function updateSpeaker (data) {
-    if(data.speaking == username && data.isDirect != speaker) {
-      if(data.isDirect){
-        directRaised = false;        
+      if(cleanInput(handsArray[i]) == username) {
+        $hands.append("<div class='singleHand ownHand'>" + cleanInput(handsArray[i])) + "</div>";
       } else {
-        handRaised = false;
+        $hands.append("<div class='singleHand'>" + cleanInput(handsArray[i])) + "</div>";
       }
     }
     
-    speaker = data;
-    console.log("updating speaker: ", data.speaking, " is direct? ", data.isDirect);
+    titleText(findPosInQueue(username, replyArray, handsArray));
+  }
+
+  function updateSpeaker (data) {
+    // TODO: if clause to filter twice in a row and self-reply
+    if(data.isDirect && data.speaking == username){
+      speakSound.play();
+      directRaised = false;    
+      $directHand.removeClass("active");
+    } else if (!data.isDirect && data.speaking == username){
+      speakSound.play();
+      handRaised = false;
+      $raiseHand.removeClass("active");
+    }
     
-    $speaker.empty();
+
+    
+    
     if(data.isDirect){
-        $speaker.append('<p> 👋 Direct: ' + data.speaking + '</p>');
+        //clear replyer div
+        $reply.empty();
+        replyer = data.speaking;
+        if(data.speaking == "") return;
+        console.log("updating replyer: ", replyer);
+        $reply.append('<p> 🙌 Reply: <br>' + replyer + '</p>');
     } else {
-        $speaker.append('<p> Speaker: ' + data.speaking + '</p>');
+        speaker = data.speaking;
+        console.log("updating speaker: ", speaker);
+        //clear speaker and replyer divs
+        $reply.empty();
+        replyer = ""
+        $speaker.empty();
+        if(data.speaking == "") return;
+        $speaker.append('<p> Speaker: <br>' + speaker + '</p>');
     } 
   }
 
@@ -126,17 +262,29 @@
   // Sets the client's username
   function setUsername () {
     username = cleanInput($usernameInput.val().trim());
-
+    if (username.length < 3) {
+      $error.empty();
+      $error.append("Please use a name longer than 2 characters.");
+      username = false;
+      return;
+    }
+    
     // If the username is valid
     if (username) {
+      // Tell the server your username
+      if(username == "mod") makeMeMod();
+      socket.emit('add user', username);
+      // verifyUsername();
+    }
+  }
+  
+  // username is unique
+  function verifyUsername () {
       $loginPage.fadeOut();
       $chatPage.show();
+      $chatArea.hide();
       $loginPage.off('click');
       $currentInput = $inputMessage.focus();
-
-      // Tell the server your username
-      socket.emit('add user', username);
-    }
   }
 
   // Sends a chat message
@@ -291,6 +439,7 @@
         socket.emit('stop typing');
         typing = false;
       } else {
+        console.log("trying to set username...");
         setUsername();
       }
     }
@@ -315,6 +464,7 @@
   // ############################################################################################### Socket events
 
   socket.on('next speaker', function (data) {
+    console.log("dat:", data);
     console.log("speaker: ", data.speaking, "  direct: ", data.isDirect);
     updateSpeaker(data);
   });
@@ -352,6 +502,7 @@
     log(data.username + ' left');
     addParticipantsMessage(data);
     removeChatTyping(data);
+
   });
 
   // Whenever the server emits 'typing', show the typing message
@@ -362,5 +513,15 @@
   // Whenever the server emits 'stop typing', kill the typing message
   socket.on('stop typing', function (data) {
     removeChatTyping(data);
+  });
+
+  socket.on('valid name', function () {
+    verifyUsername();
+  });
+
+  socket.on('invalid name', function (data) {
+    username = false;
+    $error.empty();
+    if(data == "inUse") $error.append("This name is already in use");
   });
 // });

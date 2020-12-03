@@ -15,10 +15,12 @@ app.use(express.static('public'));
 // Chatroom
 
 let numUsers = 0;
+let userList = [];
 let hands = [];
 let replies = [];
 
 let speaking = "";
+let directR = "";
 let isDirect = false;
 
 
@@ -82,7 +84,7 @@ io.on('connection', function (socket) {
   socket.on('next hand', function () {
     if(hands.length >= 1 || replies.length >=1) {
       if(replies.length >= 1) {
-        speaking = replies.shift();  
+        directR = replies.shift();  
         isDirect = true;
       } else {
         speaking = hands.shift(); 
@@ -90,16 +92,18 @@ io.on('connection', function (socket) {
       }
       if(isDirect){
         io.emit('new message', {
-          username: speaking,
+          username: directR,
           message: "may now ask"
         });
+        io.emit('next speaker', {speaking: directR, isDirect});
+
       } else {
         io.emit('new message', {
           username: speaking,
           message: "is now speaking"
         });
+        io.emit('next speaker', {speaking, isDirect});
       }
-      io.emit('next speaker', {speaking, isDirect});
       io.emit('hand update', {replies, hands});
     } else {
       console.log("no hands raised");
@@ -128,10 +132,23 @@ io.on('connection', function (socket) {
 
   // when the client emits 'add user', this listens and executes
   socket.on('add user', function (username) {
-    if (addedUser) return;
+    // user with this name registered
+    console.log(userList, userList.indexOf(username));
+    if(userList.indexOf(username) != -1) {
+      socket.emit('invalid name', "inUse");
+      return;
+    }
+    
+    if (addedUser) {
+      console.log("user already added");
+      return;
+    }
 
     // we store the username in the socket session for this client
     socket.username = username;
+    userList.push(socket.username);
+    socket.emit('valid name');
+
     ++numUsers;
     addedUser = true;
     socket.emit('login', {
@@ -143,8 +160,21 @@ io.on('connection', function (socket) {
       username: socket.username,
       numUsers: numUsers
     });
-    io.emit('next speaker', {speaking, isDirect});
-    io.emit('hand update', {replies, hands});
+    
+    //
+    if(speaking != "") {
+      socket.emit('next speaker', {
+        speaking: speaking, 
+        isDirect: false
+      });
+    }
+    if(directR != "") {
+      socket.emit('next speaker', {
+        speaking: directR, 
+        isDirect: true
+      });
+    }
+    socket.emit('hand update', {replies, hands});
   });
 
   // when the client emits 'typing', we broadcast it to others
@@ -166,6 +196,11 @@ io.on('connection', function (socket) {
   socket.on('disconnect', function () {
     if (addedUser) {
       --numUsers;
+      // remove user from list of online users
+      var userIndex = userList.indexOf(socket.username);
+      if (userIndex !== -1) {
+        userList.splice(userIndex, 1);
+      }
       
       // remove user from the queue if removeOnLeave is true
       if(removeOnLeave) {
@@ -177,8 +212,24 @@ io.on('connection', function (socket) {
         if (replyIndex !== -1) {
           replies.splice(replyIndex, 1);
         }
-        
         io.emit('hand update', {replies, hands});
+        console.log("user ", socket.username, " left. ", speaking, directR);
+        if(speaking == socket.username) {
+          console.log("speaker quit");
+          speaking = "";
+          io.emit('next speaker', {
+            speaking: "", 
+            isDirect: false
+          });
+        }
+        if(directR == socket.username) {
+          console.log("direct quit");
+          directR = "";
+          io.emit('next speaker', {
+            speaking: "", 
+            isDirect: true
+          });
+        }
       }
       
       // echo globally that this client has left
