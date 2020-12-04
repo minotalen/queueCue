@@ -23,6 +23,7 @@ let replies = [];
 let speaking = "";
 let directR = "";
 let isDirect = false;
+var kickVotes = [];
 
 
 // global settings
@@ -74,6 +75,27 @@ io.on('connection', function (socket) {
     io.emit('hand update', {replies, hands});
   });
   
+  socket.on('vote speaker kick', function () {
+    if(!kickVotes.includes(socket.username)){
+      io.emit('new message', {
+        username: socket.username,
+        message: "voted to kick the current speaker"
+      });
+      // register vote to kick user
+      kickVotes.push(socket.username);
+      var kickThreshold = Math.max(Math.floor(numUsers/3),2); // at least 2 voted to kick, otherwise 1/3rd of users rounded down
+      if(kickThreshold <= kickVotes.length) {
+        // emit kick
+        io.emit('new message', {
+          username: speaking,
+          message: "was removed as speaker by community vote"
+        });
+        io.emit('hand update', {replies, hands});
+      }
+    }
+    
+  });
+  
   socket.on('lower hand', function () {
     var index = hands.indexOf(socket.username);
     if (index !== -1) {
@@ -108,7 +130,7 @@ io.on('connection', function (socket) {
       username: socket.username,
       message: "has no question anymore"
     });
-    io.emit('hand update', {replies, hands});
+    io.emit('next hand');
   });
   
   
@@ -123,6 +145,7 @@ io.on('connection', function (socket) {
         isDirect = false;
       }
       if(isDirect){
+        kickVotes = [];
         io.emit('new message', {
           username: directR,
           message: "may now ask"
@@ -131,6 +154,7 @@ io.on('connection', function (socket) {
         io.emit('next speaker', {speaking: directR, isDirect: true}); // broadcast direct replier to clients
 
       } else {
+        kickVotes = [];
         io.emit('new message', {
           username: speaking,
           message: "is now speaking"
