@@ -25,7 +25,7 @@
  *    win: window
  * });
  */
-// (function () {
+(function () {
 
 	var Favico = (function (opt) {
 		'use strict';
@@ -901,4 +901,4 @@
 		this.Favico = Favico;
 	}
 
-// })();
+})();

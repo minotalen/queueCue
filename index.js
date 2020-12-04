@@ -14,6 +14,7 @@ app.use(express.static('public'));
 
 // Chatroom
 
+let hasMod = false // if a mod is present
 let numUsers = 0;
 let userList = [];
 let hands = [];
@@ -33,7 +34,31 @@ io.on('connection', function (socket) {
 
   
   // ###############################################################################
+  socket.on('options', function (data) {
+    if(data.removeOnLeave == true) {
+      removeOnLeave = true;
+    } else if (removeOnLeave == "toggle") {
+      removeOnLeave != removeOnLeave;
+    } else {
+      removeOnLeave = false;
+    }
+    
+  });
+            
   socket.on('raise hand', function () {
+    if(speaking == "") {
+      speaking = socket.username;
+      // replies = spliceFrom(replies, speaking); // remove new speaker from directs
+      io.emit('next speaker', {
+        speaking: speaking, 
+        isDirect: false
+      });
+      io.emit('new message', {
+          username: speaking,
+          message: "is now speaking"
+        });
+      return;
+    }
     hands.push(socket.username);
     
     io.emit('new message', {
@@ -82,6 +107,7 @@ io.on('connection', function (socket) {
   
   
   socket.on('next hand', function () {
+    console.log("next hand called ");
     if(hands.length >= 1 || replies.length >=1) {
       if(replies.length >= 1) {
         directR = replies.shift();  
@@ -94,15 +120,17 @@ io.on('connection', function (socket) {
         io.emit('new message', {
           username: directR,
           message: "may now ask"
-        });
-        io.emit('next speaker', {speaking: directR, isDirect});
+        });        
+        
+        io.emit('next speaker', {speaking: directR, isDirect: true}); // broadcast direct replier to clients
 
       } else {
         io.emit('new message', {
           username: speaking,
           message: "is now speaking"
         });
-        io.emit('next speaker', {speaking, isDirect});
+        // replies = spliceFrom(replies, speaking); // remove new speaker from directs
+        io.emit('next speaker', {speaking, isDirect}); // boadcast next speaker to clients
       }
       io.emit('hand update', {replies, hands});
     } else {
@@ -110,7 +138,18 @@ io.on('connection', function (socket) {
     }
   });
 
-
+// function spliceFrom(arrayToSpliceFrom, thingToSplice) {
+//     console.log("splicing ", thingToSplice, " from ", arrayToSpliceFrom, "   ", arrayToSpliceFrom.indexOf(thingToSplice) );
+  
+//     var index = arrayToSpliceFrom.indexOf(thingToSplice);
+//     if (index !== -1) {
+//       // console.log("actually splicing", index, arrayToSpliceFrom[index], arrayToSpliceFrom.splice(0, 1));
+//       arrayToSpliceFrom.splice(index, 1);
+//       return arrayToSpliceFrom
+//     }
+//     console.log("no splice");
+//     return arrayToSpliceFrom;
+// }
 
 
   
@@ -150,12 +189,23 @@ io.on('connection', function (socket) {
     userList.push(socket.username);
     socket.emit('valid name');
 
+    
     ++numUsers;
+    
     addedUser = true;
     socket.emit('login', {
       numUsers: numUsers,
-      hands: hands
+      hands: hands,
+      makeMod: true
     });
+    
+    if( !hasMod ) { // if there is no mod in the room
+      hasMod = true;
+      io.emit('new message', {
+          username: socket.username,
+          message: "gets mod status as first user"
+      });
+    }
     // echo globally (all clients) that a person has connected
     socket.broadcast.emit('user joined', {
       username: socket.username,
@@ -205,6 +255,7 @@ io.on('connection', function (socket) {
       
       // remove user from the queue if removeOnLeave is true
       if(removeOnLeave) {
+        if(socket.isMod ) hasMod = false;
         var index = hands.indexOf(socket.username);
         if (index !== -1) {
           hands.splice(index, 1);

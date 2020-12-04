@@ -1,6 +1,8 @@
 /* global io */
 
-// $(function() {
+// IFFY  immediately invoked function expression  --- limits scope 
+// (function () {
+
   var FADE_TIME = 150; // ms
   var TYPING_TIMER_LENGTH = 400; // ms
   var COLORS = [
@@ -12,10 +14,10 @@
   // Initialize variables
   var $window = $(window);
   var $usernameInput = $('.usernameInput'); // Input for username
-  var $messages = $('.messages'); // Messages area
+  var $eventlog = $('.eventlog'); // event log area
   var $error = $('.error'); // Login Error area
   var $inputMessage = $('.inputMessage'); // Input message input box
-  var $chatArea = $('.chatArea');  // hands display box
+  var $modArea = $('.modArea');  // hands display box
   var $hands = $('.handsArea');  // hands display box
   var $speaker = $('.speakerArea');  // hands display box
   var $reply = $('.replyArea');  // hands display box
@@ -23,6 +25,7 @@
   var $raiseHand = $('.raiseHand');
   var $directHand = $('.directHand');
   var $nextButton = $('.nextButton');
+  var $logButton = $('.logButton');
   
 
   var $loginPage = $('.login.page'); // The login page
@@ -50,6 +53,7 @@
   var socket = io();
 
 
+
   var favicon=new Favico({
     type : 'rectangle',
     animation:'slide',
@@ -67,36 +71,44 @@
       // if(event.key == "m") makeMeMod();  
       
       if(event.key == "n" && ( isMod || speaker == username) ) nextSpeaker();  
+      if(event.key == "l" && ( isMod ) ) {
+        console.log("toggling log", $modArea.is(":visible"));
+        toggleLog();  
+      }
     }
   });
     
-  // ################# AUDIO    ###################################################
-  var nextSound, speakSound;
-  $(document).ready(function() {
-    nextSound = document.createElement('audio');
-    nextSound.setAttribute('src', 'https://cdn.glitch.com/19a8c08b-3360-4881-8fc4-9fc8748478ce%2Fsharp-592.mp3?v=1606959394544');
-    
-    speakSound = document.createElement('audio');
-    speakSound.setAttribute('src', 'https://cdn.glitch.com/19a8c08b-3360-4881-8fc4-9fc8748478ce%2Fjust-saying-593.mp3?v=1606959395695'); 
-  });
-
-
-  // ###############################################################################
+  // ############# MOD AND OPTIONS     ##################################################
   function makeMeMod () {
     if(!isMod){
       isMod = true;
       console.log("You are now a moderator...");
       $raiseHand.fadeOut();
       $directHand.fadeOut();
-      $chatArea.show();
       $nextButton.show();
+      $logButton.show();
     }
+    
+  }
+  
+
+  function toggleLog() {
+        if($modArea.is(":visible")) {
+          $modArea.hide();
+        } else {
+          $modArea.show();
+        }
+
+  }
+  // OPTIONS ##########################################
+
+  function optionRemoveOnLeave(input) {
+    socket.emit('options', {removeOnLeave: input});
   }
 
-  // function changePageTitle(input) {
-  //   document.title = input;      
-  // }
 
+  // NOTIFICATIONS & TITLE ##################################################################
+  
   // finds the user position in the combined queue
   function findPosInQueue(name, replyArray, handsArray) {
     let pos = 0;
@@ -116,10 +128,10 @@
 
   // sets the text of the title based on queue position
   function titleText(pos) {
-    let speakUp = "!!!! SPEAK !!!!";
-    let firstPos = "!!! Next in the queue !!!";
+    let speakUp = "! Your turn to speak !";
+    let firstPos = ". You're up next! .";
     let notQueued = "Not in the queue.";
-    let emptyQueue = "queue is empty"
+    let emptyQueue = "Queue is empty"
     if(pos == 0) {
       document.title = firstPos;      
     } else if(pos == 999) {
@@ -147,6 +159,19 @@
     currentPos = pos;
   }
 
+  // ################# AUDIO    ###################################################
+  var nextSound, speakSound;
+  $(document).ready(function() {
+    nextSound = document.createElement('audio');
+    nextSound.setAttribute('src', 'https://cdn.glitch.com/19a8c08b-3360-4881-8fc4-9fc8748478ce%2Fsharp-592.mp3?v=1606959394544');
+    
+    speakSound = document.createElement('audio');
+    speakSound.setAttribute('src', 'https://cdn.glitch.com/19a8c08b-3360-4881-8fc4-9fc8748478ce%2Fjust-saying-593.mp3?v=1606959395695'); 
+  });
+ 
+  
+  // ################# BUTTONS    ###################################################
+  
   // raise or lower user hand, add/remove from queue
   function raiseHand () {
     console.log("hand raise clicked", handRaised)
@@ -185,27 +210,44 @@
   }
 
 
+
+  // ################# SOCKET RECEIVE ######################################
   function updateHands (replyArray, handsArray) {
     $hands.empty();
     // console.log(handsArray);
       $hands.append('<h3> Hands: </h3>');
     // if(replyArray >= 1) $hands.append('<h4> Replies </h4>');
+    
+    // draw all replies
     for(let i = 0; i < replyArray.length; i++) {
       if(cleanInput(replyArray[i]) == username) {
-        $hands.append("<div class='replyHand ownHand'> 🙌" + cleanInput(replyArray[i])) + "</div>";
+        $hands.append("<div class='replyHand'> <span class='ownHand'> 🙌 " + cleanInput(replyArray[i])) + "</span></div>";
+        // on reconnect, add class again
+        console.log("instant reply");
+        directRaised = true;
+        $directHand.addClass("active");
       } else {
-        $hands.append("<div class='replyHand'> 🙌" + cleanInput(replyArray[i])) + "</div>";
-      }
-    }
-
-    for(let i = 0; i < handsArray.length; i++) {
-      if(cleanInput(handsArray[i]) == username) {
-        $hands.append("<div class='singleHand ownHand'>" + cleanInput(handsArray[i])) + "</div>";
-      } else {
-        $hands.append("<div class='singleHand'>" + cleanInput(handsArray[i])) + "</div>";
+        $hands.append("<div class='replyHand'> 🙌 " + cleanInput(replyArray[i])) + "</div>";
       }
     }
     
+    // horizontal line betwen direct and replies
+    if(replyArray.length != 0 && handsArray.length != 0)  $hands.append("<hr>"); 
+
+    // draw all raised hands
+    for(let i = 0; i < handsArray.length; i++) {
+      if(cleanInput(handsArray[i]) == username) {
+        $hands.append("<div class='singleHand'><span class='ownHand'> ✋ " + cleanInput(handsArray[i])) + "</span></div>";
+        console.log("raising hand");
+        // on reconnect, add class again
+        handRaised = true;
+        $raiseHand.addClass("active");
+      } else {
+        $hands.append("<div class='singleHand'> ✋ " + cleanInput(handsArray[i])) + "</div>";
+      }
+    }
+    
+    //update text for title bar
     titleText(findPosInQueue(username, replyArray, handsArray));
   }
 
@@ -217,7 +259,7 @@
       speakSound.play();
       directRaised = false;  
       $directHand.removeClass("active");
-      $nextButton.fadeOut();
+      if(!isMod) $nextButton.fadeOut();
       $raiseHand.fadeIn();
       $directHand.fadeOut();
     } else if (!data.isDirect && data.speaking == username){
@@ -239,7 +281,11 @@
         replyer = data.speaking;
         if(data.speaking == "") return;
         // console.log("updating replyer: ", replyer);
-        $reply.append('<p> 🙌 Reply: <br>' + replyer + '</p>');
+        if(replyer == username) {
+          $reply.append("<p> 🙌 Reply: <br> <span class='ownHand'>" + replyer + "</p>");
+        } else {
+          $reply.append('<p> 🙌 Reply: <br>' + replyer + '</p>');
+        }
     } else {
         speaker = data.speaking;
         // console.log("updating speaker: ", speaker);
@@ -248,7 +294,13 @@
         replyer = ""
         $speaker.empty();
         if(data.speaking == "") return;
-        $speaker.append('<p> Speaker: <br>' + speaker + '</p>');
+        if(speaker == username) {
+          $speaker.append("<p> Speaker: <br> <span class='ownHand'>" + speaker + "</span></p>");
+        } else {
+          $speaker.append('<p> Speaker: <br>' + speaker + '</p>');
+        }
+      
+
     }
     
     if (!isMod && speaker != username && replyer != username) {
@@ -260,6 +312,8 @@
     }
   }
 
+
+  // ################# SOCKET SEND ######################################
   function nextSpeaker() {
     if(username == speaker || isMod) {
       socket.emit('next hand');
@@ -274,7 +328,7 @@
   function addParticipantsMessage (data) {
     var message = '';
     if (data.numUsers === 1) {
-      message += "there's 1 participant";
+      message += "there's 1 participant, you :)";
     } else {
       message += "there are " + data.numUsers + " participants";
     }
@@ -301,12 +355,11 @@
   
   // username is unique
   function verifyUsername () {
-      $nextButton.hide();
       if(username == "mod") makeMeMod();
       $loginPage.fadeOut();
       $loginPage.off('click');
       $chatPage.show();
-      $chatArea.hide();
+      $modArea.hide();
       $currentInput = $inputMessage.focus();
   }
 
@@ -397,11 +450,11 @@
       $el.hide().fadeIn(FADE_TIME);
     }
     if (options.prepend) {
-      $messages.prepend($el);
+      $eventlog.prepend($el);
     } else {
-      $messages.append($el);
+      $eventlog.append($el);
     }
-    $messages[0].scrollTop = $messages[0].scrollHeight;
+    $eventlog[0].scrollTop = $eventlog[0].scrollHeight;
   }
 
   // Prevents input from having injected markup
@@ -499,6 +552,8 @@
   // Whenever the server emits 'login', log the login message
   socket.on('login', function (data) {
     connected = true;
+    // makes the first user a mod
+    if(data.makeMod) makeMeMod();
     // Display the welcome message
     var message = "queueCue prototype";
     log(message, {
@@ -547,5 +602,6 @@
     $error.empty();
     if(data == "inUse") $error.append("This name is already in use");
     if(data == "userOnline") $error.append("welp, this sucks");
-  });
-// });
+  });  
+  
+// })();

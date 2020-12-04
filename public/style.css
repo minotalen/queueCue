@@ -1,5 +1,13 @@
 /* Fix user-agent */
-
+.modArea {
+  z-index: 666;
+  position: absolute;
+  overflow:scroll;
+  width: 100%;
+  height: 100%;
+  background-color: #2c2536;
+  font-size: 1.8em;
+}
 
 
 .replyHand {
@@ -11,10 +19,15 @@
 .button {
   height: 99%;
   width: 32%;
+  background-color: #2f2d33;
+  color: #ffdddd;
+  font-weight: bold;
+  font-size: 1.5em;
 }
 
 .active {
-  background-color: lightgreen;
+  background-color: yellow;
+  color: black;
 }
 
 .error {
@@ -46,6 +59,8 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+  background-color: #170f19 !important;
+  color: #ffdddd !important;
 }
 
 ul {
@@ -138,7 +153,7 @@ ul {
 .handsArea {
   grid-row: 2/3;
   grid-column: 1/3;
-  margin: 5%;
+  margin: 20px;
   font-size: 1.6em;
 }
 
@@ -147,7 +162,7 @@ ul {
   grid-row: 3;
   display: grid;
   align-items: stretch;
-  margin: 10px;
+  margin: 20px;
   grid-template-rows: 1fr;
   grid-template-columns: 1fr 1fr;
 }
@@ -165,7 +180,13 @@ ul {
 }
 
 .nextButton {
-  grid-column: 1/3;
+  grid-column: 1;
+  width:100%;
+}
+
+.logButton {
+  z-index: 999;
+  grid-column: 2;
   width:100%;
 }
 
@@ -177,10 +198,13 @@ ul {
 
 
 .ownHand {
-    font-weight: bold;
-    font-size: 1.2em;
-    background-color: yellow;
+  font-weight: bold;
+  font-size: 1.2em;
+  background-color: yellow;
+  color: black;
+  margin-right: 20px;
 }
+
 /* Font */
 
 .messages {
@@ -202,6 +226,9 @@ ul {
 .chatArea {
   height: 100%;
   padding-bottom: 60px;
+  grid-row: 4;
+  grid-column: 1/3;
+  height: 800px;
 }
 
 .messages {

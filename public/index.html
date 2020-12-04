@@ -8,11 +8,11 @@
 <body>
   <div class="pages">
     <div class="chat page">
-      <div class="chatArea">
-        <ul class="messages"></ul>
+      <div class="modArea" style="display: none;">
+        <ul class="eventlog"></ul>
       </div>
       <div class="speakerArea">
-        Speaker: nobody (yet)
+        Speaker:
       </div>
       <div class="replyArea">
         
@@ -23,9 +23,10 @@
         </h3>
       </div>
       <div class="buttonArea">
-        <button class="button raiseHand" onclick="raiseHand()"> <span style="font-size: 6em">✋</span> <br> raise (H)and</button>
-        <button class="button directHand" onclick="directHand()"><span style="font-size: 6em">🙌</span> <br> (D)irect reply</button>
-        <button class="button nextButton" onclick="nextSpeaker()"><span style="font-size: 6em">⏭️</span> <br> (N)ext</button>
+        <button class="button raiseHand" onclick="raiseHand()"> <span style="font-size: 6em">✋</span> <br> raise (h)and</button>
+        <button class="button directHand" onclick="directHand()"><span style="font-size: 6em">🙌</span> <br> (d)irect reply</button>
+        <button class="button nextButton" style="display: none;"  onclick="nextSpeaker()"><span style="font-size: 6em">⏭️</span> <br> (n)ext</button>
+        <button class="button logButton" style="display: none;" onclick="toggleLog()"><span style="font-size: 6em">㏒</span> <br> (l)og</button>
       </div>
     </div>
     
