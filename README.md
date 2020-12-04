@@ -1,7 +1,8 @@
 # QueueCue
 
-### KREATIV // DESIGN
-* Optionen / Modi erfinden (siehe `possible options.md`)
+### CREATIVE // DESIGN
+* Optionen / Modi (siehe `possible options.md`)
+
 ### KNOWN BUGS
 
 * being Pos2 in the Queue and then going to Pos1 gives sound notification for next in line
@@ -13,8 +14,11 @@
   14.02
   * added dark stuff (sorry it was necessary)
   * added highlighting of own name
-  * first option "removeOnLeave". When _'true'_, disconnected users are removed from the queue and as speakers. When _'false'_, disconnected users can rejoin by entering their old user name
+  * first option 'removeOnLeave'. When _'true'_, disconnected users are removed from the queue and as speakers. When _'false'_, disconnected users can rejoin by entering their old user name
     * still need an option for automatically filling the now-empty speaker role (when on)
+  * first user that logs in now becomes mod
+  * toggleable log/options menu with toggle for 'removeOnLeave'
+  * max length option for the queue (currently just shows ... on max length but eventually it should also tell the user their position)
       
 13.02
   * usernames are now **unique** and have to be longer than 2 chars

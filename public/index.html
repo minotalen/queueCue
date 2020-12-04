@@ -22,11 +22,30 @@
           Hands
         </h3>
       </div>
+      
       <div class="buttonArea">
-        <button class="button raiseHand" onclick="raiseHand()"> <span style="font-size: 6em">✋</span> <br> raise (h)and</button>
-        <button class="button directHand" onclick="directHand()"><span style="font-size: 6em">🙌</span> <br> (d)irect reply</button>
-        <button class="button nextButton" style="display: none;"  onclick="nextSpeaker()"><span style="font-size: 6em">⏭️</span> <br> (n)ext</button>
-        <button class="button logButton" style="display: none;" onclick="toggleLog()"><span style="font-size: 6em">㏒</span> <br> (l)og</button>
+        <button class="button raiseHand" onclick="raiseHand()"> 
+          <span style="font-size: 3em">✋</span> 
+          <br> raise (h)and</button>
+        <button class="button directHand" onclick="directHand()">
+          <span style="font-size: 3em">🙌</span> 
+          <br> (d)irect reply</button>
+        <button class="button nextButton" style="display: none;" onclick="nextSpeaker()">
+          <span style="font-size: 2em">⏭️</span>
+          <br> (n)ext
+        </button>
+        <button class="button removeOption" style="display: none;" onclick="optionRemoveOnLeave(!options.removeOnDisconnect)">
+          <span style="font-size: 2em">␡</span>
+          <br> remove disconnected
+        </button>
+        <button class="button clearOption" style="display: none;" onclick="clear()">
+          <span style="font-size: 2em">❌</span> 
+          <br> clear queue 
+        </button>
+        <button class="button logButton" style="display: none;" onclick="toggleLog()">
+          <span style="font-size: 2em">㏒</span> 
+          <br> (l)og
+        </button>
       </div>
     </div>
     

@@ -7,27 +7,7 @@
   height: 100%;
   background-color: #2c2536;
   font-size: 1.8em;
-}
-
-
-.replyHand {
-  font-weight: bold;
-  font-size: 1.1em;
-}
-
-
-.button {
-  height: 99%;
-  width: 32%;
-  background-color: #2f2d33;
-  color: #ffdddd;
-  font-weight: bold;
-  font-size: 1.5em;
-}
-
-.active {
-  background-color: yellow;
-  color: black;
+  overflow: hidden;
 }
 
 .error {
@@ -61,6 +41,7 @@ html, body {
   padding: 0;
   background-color: #170f19 !important;
   color: #ffdddd !important;
+  overflow: hidden;
 }
 
 ul {
@@ -128,7 +109,7 @@ ul {
 .chat.page {
   display: none;
   display: grid;
-  grid-template-rows: 1fr 2fr 0.6fr;
+  grid-template-rows: 1fr 7fr 2fr;
   grid-template-columns: 1fr 1fr;
 }
 
@@ -167,27 +148,54 @@ ul {
   grid-template-columns: 1fr 1fr;
 }
 
-.raiseHand {
-  grid-column: 1;
+.button {
+  background-color: #2f2d33;
+  color: #ffdddd;
+  font-weight: bold;
+  font-size: 1.5em;
   width: 100%;
   height: 100%;
+}
+
+.active {
+  background-color: yellow;
+  color: black;
+}
+
+.raiseHand {
+  grid-column: 1;
 }
 
 .directHand {
   grid-column: 2;
-  width: 100%;
-  height: 100%;
 }
+
 
 .nextButton {
   grid-column: 1;
-  width:100%;
+  grid-row: 2;
 }
 
 .logButton {
   z-index: 999;
   grid-column: 2;
-  width:100%;
+  grid-row: 2;
+}
+
+.removeOption {
+  z-index: 999;
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.clearOption {
+  z-index: 999;
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.eventLog {
+  height: 80%;
 }
 
 .confirmName{

@@ -6,9 +6,9 @@
   var FADE_TIME = 150; // ms
   var TYPING_TIMER_LENGTH = 400; // ms
   var COLORS = [
-    '#e21400', '#91580f', '#f8a700', '#f78b00',
-    '#58dc00', '#287b00', '#a8f07a', '#4ae8c4',
-    '#3b88eb', '#3824aa', '#a700ff', '#d300e7'
+    '#e21400', '#c27513', '#f8a700', '#f78b00',
+    '#58dc00', '#8cde87', '#a8f07a', '#4ae8c4',
+    '#3b88eb', '#5677d1', '#a700ff', '#d300e7'
   ];
 
   // Initialize variables
@@ -21,11 +21,16 @@
   var $hands = $('.handsArea');  // hands display box
   var $speaker = $('.speakerArea');  // hands display box
   var $reply = $('.replyArea');  // hands display box
+
+
+  var $button = $('.button');
   var $buttons = $('.buttonArea');
   var $raiseHand = $('.raiseHand');
   var $directHand = $('.directHand');
   var $nextButton = $('.nextButton');
   var $logButton = $('.logButton');
+  var $removeOption = $('.removeOption')
+  var $clearOption = $('.clearOption')
   
 
   var $loginPage = $('.login.page'); // The login page
@@ -52,7 +57,10 @@
 
   var socket = io();
 
-
+  var options = {
+    removeOnDisconnect: true,
+    maxQueueDisplay: 10
+  };
 
   var favicon=new Favico({
     type : 'rectangle',
@@ -83,8 +91,9 @@
     if(!isMod){
       isMod = true;
       console.log("You are now a moderator...");
-      $raiseHand.fadeOut();
-      $directHand.fadeOut();
+      // $raiseHand.fadeOut();
+      // $directHand.fadeOut();
+      $buttons.css('grid-template-rows', '1fr 1fr');
       $nextButton.show();
       $logButton.show();
     }
@@ -94,16 +103,56 @@
 
   function toggleLog() {
         if($modArea.is(":visible")) {
-          $modArea.hide();
+          $logButton.removeClass("active");
+          $modArea.fadeOut();
+          
+          $removeOption.hide();
+          $clearOption.hide();
+          
+          $raiseHand.fadeIn();
+          $directHand.fadeIn();
         } else {
+          $logButton.addClass("active");
           $modArea.show();
+          
+          if(options.removeOnDisconnect == true) {
+            $removeOption.addClass("active");
+          } else {
+            $removeOption.removeClass("active");
+          }
+          $raiseHand.hide()
+          $directHand.hide()
+          
+          $removeOption.fadeIn()
+          $clearOption.fadeIn()
+          
+
         }
 
   }
   // OPTIONS ##########################################
 
   function optionRemoveOnLeave(input) {
+    if(input== true) {
+      $removeOption.addClass("active");
+    } else {
+      $removeOption.removeClass("active");
+    }
+    options.removeOnDisconnect = input;
     socket.emit('options', {removeOnLeave: input});
+  }  
+
+  function clear(clrDirect = true, clrHands = true) {
+    console.log("clearing queue");
+    if(clrDirect && isMod) {
+      socket.emit('clear direct');
+    };
+    if(clrHands && isMod) {
+      socket.emit('clear hands');
+    };
+    if( (clrHands || clrDirect) && isMod ) {
+      socket.emit('new message', "has cleared the queue");
+    }
   }
 
 
@@ -218,16 +267,23 @@
       $hands.append('<h3> Hands: </h3>');
     // if(replyArray >= 1) $hands.append('<h4> Replies </h4>');
     
+    let ownBuffer = 0; // all own add +1 element because of the span
     // draw all replies
     for(let i = 0; i < replyArray.length; i++) {
       if(cleanInput(replyArray[i]) == username) {
         $hands.append("<div class='replyHand'> <span class='ownHand'> 🙌 " + cleanInput(replyArray[i])) + "</span></div>";
+        ownBuffer++;
         // on reconnect, add class again
         console.log("instant reply");
         directRaised = true;
         $directHand.addClass("active");
       } else {
         $hands.append("<div class='replyHand'> 🙌 " + cleanInput(replyArray[i])) + "</div>";
+      }
+      var matched = $(".handsArea *");
+      if(matched.length > options.maxQueueDisplay + ownBuffer + 2) { // +2 because of hr & h3
+        $hands.append("<div class='moreInQueue'> ... </div>");
+        return;
       }
     }
     
@@ -239,11 +295,17 @@
       if(cleanInput(handsArray[i]) == username) {
         $hands.append("<div class='singleHand'><span class='ownHand'> ✋ " + cleanInput(handsArray[i])) + "</span></div>";
         console.log("raising hand");
+        ownBuffer++;
         // on reconnect, add class again
         handRaised = true;
         $raiseHand.addClass("active");
       } else {
         $hands.append("<div class='singleHand'> ✋ " + cleanInput(handsArray[i])) + "</div>";
+      }
+      var matched = $(".handsArea *");
+      if(matched.length > options.maxQueueDisplay + ownBuffer + 2) { // +2 because of hr & h3
+        $hands.append("<div class='moreInQueue'> ... </div>");
+        return;
       }
     }
     
@@ -259,7 +321,9 @@
       speakSound.play();
       directRaised = false;  
       $directHand.removeClass("active");
-      if(!isMod) $nextButton.fadeOut();
+      if(!isMod) {
+        $nextButton.fadeOut();
+      }
       $raiseHand.fadeIn();
       $directHand.fadeOut();
     } else if (!data.isDirect && data.speaking == username){
@@ -268,7 +332,13 @@
       speakSound.play();
       handRaised = false;
       $raiseHand.removeClass("active");
-      $nextButton.fadeIn();
+      
+      if(!isMod) {
+        $nextButton.fadeIn();
+        $nextButton.css('grid-column', '1/3');
+        $nextButton.css('grid-row', '1/3');
+      }
+
       $raiseHand.fadeOut();
       $directHand.fadeOut();
     }
@@ -306,7 +376,12 @@
     if (!isMod && speaker != username && replyer != username) {
       // not speaking (anymore)
       console.log("not speaking (anymore)");
+      $nextButton.css('grid-column', '1');
       $nextButton.fadeOut();
+      
+      $raiseHand.fadeIn();
+      $directHand.fadeIn();
+    } else if (isMod && speaker != username && replyer != username) {
       $raiseHand.fadeIn();
       $directHand.fadeIn();
     }

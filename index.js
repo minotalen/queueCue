@@ -14,7 +14,7 @@ app.use(express.static('public'));
 
 // Chatroom
 
-let hasMod = false // if a mod is present
+let modName = "" // empty if no mod
 let numUsers = 0;
 let userList = [];
 let hands = [];
@@ -37,8 +37,14 @@ io.on('connection', function (socket) {
   socket.on('options', function (data) {
     if(data.removeOnLeave == true) {
       removeOnLeave = true;
-    } else if (removeOnLeave == "toggle") {
-      removeOnLeave != removeOnLeave;
+      for(let item in userList) {
+        if(hands.includes(userList[item]) || 
+           replies.includes(userList[item]) || 
+           speaking == userList[item] ||
+           directR == userList[item]) {
+          userList.splice(item, 1);
+        }
+      }
     } else {
       removeOnLeave = false;
     }
@@ -157,6 +163,17 @@ io.on('connection', function (socket) {
   // ###############################################################################
   
   
+  socket.on('clear queue', function (data) {
+    if(socket.username == modName ) {
+      hands = [];
+    }
+  });
+  
+  socket.on('clear direct', function (data) {
+    if(socket.username == modName ) {
+      replies = [];
+    }
+  });
   
   
   // when the client emits 'new message', this listens and executes
@@ -192,24 +209,29 @@ io.on('connection', function (socket) {
     
     ++numUsers;
     
+    var makeMod = false; //dont make user a mod...
+    if( modName == "") makeMod = true; //except if there is no mod
+    console.log("new user", socket.username, makeMod);
     addedUser = true;
     socket.emit('login', {
       numUsers: numUsers,
       hands: hands,
-      makeMod: true
+      makeMod: makeMod
     });
     
-    if( !hasMod ) { // if there is no mod in the room
-      hasMod = true;
+    if( modName == "" ) { // if there is no mod in the room
+      modName = socket.username;
       io.emit('new message', {
           username: socket.username,
           message: "gets mod status as first user"
       });
     }
+    
     // echo globally (all clients) that a person has connected
     socket.broadcast.emit('user joined', {
       username: socket.username,
       numUsers: numUsers
+      
     });
     
     //
@@ -252,10 +274,24 @@ io.on('connection', function (socket) {
       if (userIndex !== -1) {
         userList.splice(userIndex, 1);
       }
+      if(numUsers == 0) {
+        modName = "" // empty if no mod
+        numUsers = 0;
+        userList = [];
+        hands = [];
+        replies = [];
+
+        speaking = "";
+        directR = "";
+        isDirect = false;
+      }
       
       // remove user from the queue if removeOnLeave is true
       if(removeOnLeave) {
-        if(socket.isMod ) hasMod = false;
+        console.log(socket.username, socket.isMod);
+     
+        if(modName == socket.username) modName = "";
+
         var index = hands.indexOf(socket.username);
         if (index !== -1) {
           hands.splice(index, 1);
