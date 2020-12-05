@@ -419,9 +419,32 @@
     log(message);
   }
 
+
+
+  // ################## 'REGISTRATION'  #################################
+
+  $( document ).ready(function() {
+      loadName();
+  });
+
+  function saveName(name){    
+    var id = $usernameInput.attr('id');
+    var value = name;
+    localStorage.setItem(id, value);
+  };
+
+  function loadName(){
+    
+    var id = $usernameInput.attr('id');
+    var value = localStorage.getItem(id);
+    console.log("setting name", localStorage.getItem(id));
+    $usernameInput.val(value);
+  }
+
   // Sets the client's username
   function setUsername () {
     username = cleanInput($usernameInput.val().trim());
+    saveName(username);
     if (username.length < 3) {
       $error.empty();
       $error.append("Please use a name longer than 2 characters.");
@@ -508,12 +531,17 @@
     }
 
     // Apply options
-    if (options.prepend) {
+    // if (options.prepend) {
       $eventlog.prepend($el);
-    } else {
-      $eventlog.append($el);
-    }
-    $eventlog[0].scrollTop = $eventlog[0].scrollHeight;
+    // } else {
+    //   $eventlog.append($el);
+    // }
+
+    // idk.... just prepend for now???
+    // $$eventlog[0].animate({ scrollTop: $eventlog[0]..scrollHeight}, 1000);
+    // $eventlog.scrollTop = $eventlog.scrollHeight;
+    // $eventlog.animate({ scrollTop: $eventlog.height() }, "slow")
+    // $eventlog[0].offsetHeight
   }
 
   // Prevents input from having injected markup
@@ -586,7 +614,7 @@
 
   // Whenever the server emits 'new message', update the chat body
   socket.on('new message', function (data) {
-    console.log("new message", data);
+    // console.log("new message", data);
     addChatMessage(data);
   });
 

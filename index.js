@@ -12,6 +12,11 @@ server.listen(port, function () {
 // Routing
 app.use(express.static('public'));
 
+app.get("/wakeup", function(request, response) {
+  console.log("i'm awake");
+  response.send("i'm awake")
+});
+
 // Chatroom
 
 let modName = "" // empty if no mod
@@ -130,6 +135,7 @@ io.on('connection', function (socket) {
       username: socket.username,
       message: "has no question anymore"
     });
+    io.emit('hand update', {replies, hands});
     io.emit('next hand');
   });
   

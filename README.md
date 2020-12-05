@@ -19,6 +19,7 @@
   * first user that logs in now becomes mod
   * toggleable log/options menu with toggle for 'removeOnLeave'
   * max length option for the queue (currently just shows ... on max length but eventually it should also tell the user their position)
+  * community vote kick ? (still needs a setting, also needs to work)
       
 13.02
   * usernames are now **unique** and have to be longer than 2 chars
