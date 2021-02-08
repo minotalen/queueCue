@@ -6,12 +6,19 @@
 ### KNOWN BUGS
 
 * being Pos2 in the Queue and then going to Pos1 gives sound notification for next in line
-* doesn't handle reconnect
+* doesn't handle reconnect (does now?)
 * Safari does not handle jQuery fades (results in broken UX, does not work) 
 * reconnect as speaker has speak count + 1 (edge cases are best, let's never fix themmm)
 
 ### CHANGELOG (fresh updates on top)
 
+08.02
+  * welcome to the dark mode toggle
+  * developed new icons
+
+01.02
+  * quotierung implemented (still have to fix the sort loop for puffer to work)
+  
 17.01
   * wow, -1 is true, that's soo confusing
   * bare user raise counting

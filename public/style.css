@@ -1,22 +1,36 @@
 :root { /* default/root is dark mode */
-    --primary-color: #9A97F3;
-    --secondary-color: #818cab;
-    --font-color: #e1e1ff;
-    --bg-color: #161625;
+    --primary-color: #6f6f6f;
+    --secondary-color: #000000;
+    --font-color: #ffffff;
+    --bg-color: #000000;
     --heading-color: #818cab;
-    --button-color: #01010a;
+    --button-color: #0F0F0F;
+}
+
+[data-theme="violet"] {
+    --primary-color: #887c9e; /* hightlights */
+    --secondary-color: #040404; 
+    --font-color: #040404; /* font color */
+    --bg-color: #5b5070; /* background color */ 
+    --heading-color: #887c9e; /* */
+    --button-color: #312845; /* button background */
 }
 
 [data-theme="light"] {
-    --primary-color: #e6ceff; /* hightlights */
-    --secondary-color: #373fff; 
-    --font-color: #000000; /* font color */
-    --bg-color: #036363; /* background color */ 
-    --heading-color: #e6ceff; /* */
-    --button-color: #e6ceff; /* button background */
-
+    --primary-color: #82a5ff;
+    --secondary-color: #000;
+    --font-color: #424242;
+    --bg-color: #fff;
+    --heading-color: #292922;
+    --summary-color: #373fff25;
+    --details-color: #373fff11;
+    --button-color: #e1e1e1;
 }
 
+.headline {
+  font-size:1.4em;
+  padding-bottom: 0.5em;
+}
 /*Simple css to style the theme switcher like a toggle*/
 .theme-switch-wrapper {
   padding-top: 0.5em;
@@ -32,9 +46,11 @@
   height: 20px;
   width: 40px;
   position: fixed;
-  left: 95%;
+  right: 10px;
   top: 1%;
-  z-index: 999
+  z-index: 998;
+  background-color: var(--primary-color) !important;
+  border-radius: 10px;
 }
 
 .theme-switch input {
@@ -43,7 +59,8 @@
 
 
 .slider {
-  background-color: #ccc;
+  z-index: 999;
+
   bottom: 0;
   cursor: pointer;
   left: 0;
@@ -64,6 +81,7 @@
 }
 
 input:checked + .slider {
+  background-color: #66bb6a;
 }
 
 input:checked + .slider:before {
@@ -80,9 +98,11 @@ input:checked + .slider:before {
 
 
 .userslice {
+  color: var(--font-color);
   position: fixed;
   text-align: right;
   top: 1%;
+  left: 1%;
 }
 
 
@@ -136,8 +156,16 @@ html, body {
   margin: 0;
   padding: 0;
   background-color: var(--bg-color);
-  color: var(--font-color) !important;
+  color: var(--font-color);
   overflow: auto;
+  
+   -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
 }
 
 ul {
@@ -163,7 +191,7 @@ ul {
 /* Login Page */
 
 .login.page {
-  background-color: #000;
+  background-color: var(--bg-color);
   z-index: 1000
 }
 
@@ -197,7 +225,7 @@ ul {
 }
 
 .login.page .title, .login.page .usernameInput {
-  color: #fff;
+  color: var(--font-color);
   font-weight: 100;
 }
 
@@ -258,7 +286,7 @@ ul {
 
 .active {
   background-color: var(--primary-color);
-  color: black;
+  color: var(--secondary-color);
 }
 
 .raiseHand {
@@ -308,8 +336,11 @@ ul {
   font-weight: bold;
   font-size: 1.2em;
   background-color: var(--primary-color);
-  color: var(--bg-color);
+  color: var(--secondary-color);
   margin-right: 20px;
+  padding-left: 3px;
+  padding-right: 3px;
+  border-radius: 4px;
 }
 
 /* Font */
@@ -397,7 +428,7 @@ ul {
   font-size: 1.2em;
   width: 80%; 
   height: 80%;
-  background-color: #141414;
+  background-color: var(--button-color);
 }
 
 /* The Close Button

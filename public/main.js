@@ -124,7 +124,7 @@ $window.keydown(function(event) {
     // if(event.key == "m") makeMeMod();
 
     if (event.key == "c" && (isMod || speaker == username)) cueSpeaker();
-    if (event.key == "-") startDemo();
+    // if (event.key ==    "-") startDemo();
     if (event.key == "l" && isMod) {
       console.log("toggling log", $modArea.is(":visible"));
       toggleLog();
@@ -364,7 +364,7 @@ function directHand() {
 function updateHands(replyArray, handsArray) {
   $hands.empty();
   // console.log(handsArray);
-  $hands.append("<h3> Queue: </h3>");
+  $hands.append("<span class='headline'> Queue: </span>");
   // if(replyArray >= 1) $hands.append('<h4> Replies </h4>');
 
   let ownBuffer = 0; // all own add +1 element because of the span
@@ -466,10 +466,10 @@ function updateSpeaker(data) {
     // console.log("updating replyer: ", replyer);
     if (replyer == username) {
       $reply.append(
-        "<p> 🙌 Direct: <br> <span class='ownHand'>" + replyer + "</p>"
+        "<p>Direct: <br> <span class='ownHand'>" + replyer + "</p>"
       );
     } else {
-      $reply.append("<p> 🙌 Direct: <br>" + replyer + "</p>");
+      $reply.append("<p>Direct: <br>" + replyer + "</p>");
     }
   } else {
     speaker = data.speaking;
@@ -481,10 +481,10 @@ function updateSpeaker(data) {
     if (data.speaking == "") return;
     if (speaker == username) {
       $speaker.append(
-        "<p> Speaker: <br> <span class='ownHand'>" + speaker + "</span></p>"
+        "<p>Speaker: <br> <span class='ownHand'>" + speaker + "</span></p>"
       );
     } else {
-      $speaker.append("<p> Speaker: <br>" + speaker + "</p>");
+      $speaker.append("<p>Speaker: <br>" + speaker + "</p>");
     }
   }
 
