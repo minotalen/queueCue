@@ -1,4 +1,90 @@
-/* Fix user-agent */
+:root { /* default/root is dark mode */
+    --primary-color: #9A97F3;
+    --secondary-color: #818cab;
+    --font-color: #e1e1ff;
+    --bg-color: #161625;
+    --heading-color: #818cab;
+    --button-color: #01010a;
+}
+
+[data-theme="light"] {
+    --primary-color: #e6ceff; /* hightlights */
+    --secondary-color: #373fff; 
+    --font-color: #000000; /* font color */
+    --bg-color: #036363; /* background color */ 
+    --heading-color: #e6ceff; /* */
+    --button-color: #e6ceff; /* button background */
+
+}
+
+/*Simple css to style the theme switcher like a toggle*/
+.theme-switch-wrapper {
+  padding-top: 0.5em;
+  display: flex;
+  justify-content: space-between;
+  line-height: 1em;
+  margin-left: 10px;
+  font-size: large !important;
+}
+
+.theme-switch {
+  display: inline-block;
+  height: 20px;
+  width: 40px;
+  position: fixed;
+  left: 95%;
+  top: 1%;
+  z-index: 999
+}
+
+.theme-switch input {
+  display:none;
+}
+
+
+.slider {
+  background-color: #ccc;
+  bottom: 0;
+  cursor: pointer;
+  left: 0;
+  position: absolute;
+  right: 0;
+  transition: .4s;
+}
+
+.slider:before {
+  background-color: #fff;
+  bottom: 2px;
+  content: "";
+  height: 13px;
+  left: 3px;
+  position: absolute;
+  transition: .4s;
+  width: 13px;
+}
+
+input:checked + .slider {
+}
+
+input:checked + .slider:before {
+  transform: translateX(23px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+
+.userslice {
+  position: fixed;
+  text-align: right;
+  top: 1%;
+}
+
 
 /* Hide scrollbar for Chrome, Safari and Opera */
 .modArea::-webkit-scrollbar {
@@ -14,8 +100,8 @@
   position: absolute;
   width: 100%;
   height: 82%;
-  background-color: #2c2536;
-  font-size: 1.5em;
+  background-color: var(--bg-color);
+  font-size: 1.2em;
   overflow-x: hidden;
   overflow-y: scroll;
 }
@@ -30,7 +116,7 @@
 
 html {
   font-weight: 300;
-  font-size: 1.4em;
+  font-size: 1.2em;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -49,9 +135,9 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: #170f19 !important;
-  color: #ffdddd !important;
-  overflow: hidden;
+  background-color: var(--bg-color);
+  color: var(--font-color) !important;
+  overflow: auto;
 }
 
 ul {
@@ -78,6 +164,7 @@ ul {
 
 .login.page {
   background-color: #000;
+  z-index: 1000
 }
 
 .login.page .form {
@@ -119,7 +206,7 @@ ul {
 .chat.page {
   display: none;
   display: grid;
-  grid-template-rows: 1fr 7fr 2fr;
+  grid-template-rows: 1fr 9fr 2fr;
   grid-template-columns: 1fr 1fr;
 }
 
@@ -159,16 +246,18 @@ ul {
 }
 
 .button {
-  background-color: #2f2d33;
-  color: #ffdddd;
+  cursor: pointer;
+  background-color: var(--button-color);
+  color: var(--font-color);
   font-weight: bold;
   font-size: 1.5em;
   width: 100%;
   height: 100%;
+  padding: 20px !important;
 }
 
 .active {
-  background-color: yellow;
+  background-color: var(--primary-color);
   color: black;
 }
 
@@ -218,8 +307,8 @@ ul {
 .ownHand {
   font-weight: bold;
   font-size: 1.2em;
-  background-color: yellow;
-  color: black;
+  background-color: var(--primary-color);
+  color: var(--bg-color);
   margin-right: 20px;
 }
 
@@ -263,7 +352,6 @@ ul {
 .username {
   font-weight: 700;
   overflow: hidden;
-  padding-right: 15px;
   text-align: right;
 }
 
@@ -280,3 +368,50 @@ ul {
   right: 0;
   width: 100%;
 }
+
+.howTo:hover {
+  text-decoration: underline;
+  cursor:help;
+}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: auto; /* Full height */
+  overflow-y: scroll;
+  max-height: 99%;
+}
+
+.modal-content {
+/*   overflow-y:scroll; */
+  text-align: left;
+  margin: auto;
+  padding: 9%;
+  border: 1px solid #888;
+  font-size: 1.2em;
+  width: 80%; 
+  height: 80%;
+  background-color: #141414;
+}
+
+/* The Close Button
+.close {
+  color: #ff9191;
+  float: center;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #ffaaaa;
+  text-decoration: none;
+  cursor: pointer;
+}
+*/

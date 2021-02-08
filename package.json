@@ -8,7 +8,8 @@
 	},
 	"dependencies": {
 		"express": "^4.12.4",
-		"socket.io": "*"
+		"socket.io": "*",
+		"tripcode": "^1.3.4"
 	},
 	"keywords": [
 		"node",

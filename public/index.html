@@ -1,72 +1,188 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>queueCue</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div class="pages">
-    <div class="chat page">
-      <div class="modArea" style="display: none;">
-        <ul class="eventlog"></ul>
+  <head>
+    <meta charset="UTF-8" />
+    <title>queCue</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="pages">
+      <div class="userslice">
+          <span class="name"></span>
+          <span class="raisedAmount"></span>     
       </div>
-      <button class="button speakerArea" onclick="voteSpeakerKick()">
-        Speaker:
-      </button>
-      <div class="replyArea">
+        <label class="theme-switch" for="checkbox">
+            <input type="checkbox" id="checkbox"/>
+            <div class="slider round"></div>
+        </label>
+      <div class="chat page">
+        <div class="modArea" style="display: none;">
+          <ul class="eventlog"></ul>
+        </div>
+        <div class="speakerArea" onclick="console.log('voteSpeakerKick()')">
+          Speaker:
+        </div>
+        <div class="replyArea">
+          Direct:
+        </div>
+        <div class="handsArea">
+          <h3>
+            Hands
+          </h3>
+        </div>
+
+        <div class="buttonArea">
+          <button class="button raiseHand" onclick="raiseHand()">
+            <span style="font-size: 3em">✋</span>
+            <br />
+            raise (h)and
+          </button>
+          <button class="button directHand" onclick="directHand()">
+            <span style="font-size: 3em">🙌</span>
+            <br />
+            (d)irect
+          </button>
+          <button
+            class="button cueButton"
+            style="display: none;"
+            onclick="cueSpeaker()"
+          >
+            <span style="font-size: 2em">⏭️</span>
+            <br />
+            (c)ue
+          </button>
+
+          <button
+            class="button removeOption"
+            style="display: none;"
+            onclick="optionRemoveOnLeave(!options.removeOnDisconnect)"
+          >
+            <span style="font-size: 2em">␡</span>
+            <br />
+            remove disconnected
+          </button>
+          <button
+            class="button clearOption"
+            style="display: none;"
+            onclick="clear()"
+          >
+            <span style="font-size: 2em">❌</span>
+            <br />
+            clear queue
+          </button>
+          <button
+            class="button logButton"
+            style="display: none;"
+            onclick="toggleLog()"
+          >
+            <span style="font-size: 2em">㏒</span>
+            <br />
+            (l)og
+          </button>
+        </div>
         
       </div>
-      <div class="handsArea">
-        <h3>
-          Hands
-        </h3>
-      </div>
-      
-      <div class="buttonArea">
-        <button class="button raiseHand" onclick="raiseHand()"> 
-          <span style="font-size: 3em">✋</span> 
-          <br> raise (h)and</button>
-        <button class="button directHand" onclick="directHand()">
-          <span style="font-size: 3em">🙌</span> 
-          <br> (d)irect reply</button>
-        <button class="button nextButton" style="display: none;" onclick="nextSpeaker()">
-          <span style="font-size: 2em">⏭️</span>
-          <br> (n)ext
-        </button>
-        <button class="button removeOption" style="display: none;" onclick="optionRemoveOnLeave(!options.removeOnDisconnect)">
-          <span style="font-size: 2em">␡</span>
-          <br> remove disconnected
-        </button>
-        <button class="button clearOption" style="display: none;" onclick="clear()">
-          <span style="font-size: 2em">❌</span> 
-          <br> clear queue 
-        </button>
-        <button class="button logButton" style="display: none;" onclick="toggleLog()">
-          <span style="font-size: 2em">㏒</span> 
-          <br> (l)og
-        </button>
+
+      <div class="login page">
+        <div class="form">
+          <h3 class="title">What's your nickname?</h3>
+          <h5 class="error"></h5>
+          <input class="usernameInput" type="text" maxlength="14" />
+          <br />
+          <!--         <button class="button confirmName" type="submit" onclick="setUsername()">confirm</button> -->
+          <button class="button confirmName" onclick="setUsername()">
+            confirm
+          </button>
+          <!-- Trigger/Open The Modal -->
+          <br>
+          <span class="howTo" cursor="help" id="myBtn">How does it work?</span>
+
+          <!-- The Modal -->
+          <div id="howTo" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+              <span class="close"></span>
+              <h2>
+                Howto QueCue? <br>Some simple rules.
+              </h2>
+              <h3>
+                Login
+              </h3>
+              <p>
+                Enter your name and click on "confirm" or confirm with enter. <br>
+                Welcome in your meeting's QueCue!
+              </p>
+              <h3>
+                ✋ Raise Your Hand 
+              </h3>
+              <p>
+                To contribute to the discussion, click on ✋. <br>
+                Raising your hand adds you to the queue of speakers. <br>
+                You can lower your hand with a click on ✋. <br>
+                Finished? Pass over to the next person ⏭️. <br>
+              </p>
+
+              <h3>
+                🙌 Give a Direct Answer
+              </h3>
+
+              <p>
+                A direct answer 🙌 skips regular speakers, enabling you to reply to the previous speaker. <br>
+                This enables us to finish a topic before starting a new one. <br>
+                You can raise and lower your direct hand by clicking on 🙌.
+                Keep it short and sweet! Done? click ⏭️. <br>
+                
+<!--                 Redundant? Lower your direct hand with another click on 🙌. -->
+                
+              </p>
+
+              <h3>
+                🎩 Moderating
+              </h3>
+
+              <p>
+                The first participant to join a room becomes moderator. <br>
+                They can manually cue the next speaker (⏭️) and remove participants (⏏️). <br>
+                You can also configure also room settings (don't worry, the default works alright). <br>
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    
-    <div class="login page">
-      <div class="form">
-        <h3 class="title">What's your nickname?</h3>
-        <h5 class="error">  </h5>
-        <input class="usernameInput" type="text" maxlength="14" />
-        <br>
-<!--         <button class="button confirmName" type="submit" onclick="setUsername()">confirm</button> -->
-        <button class="button confirmName" onclick="setUsername()">confirm</button>
-      </div>
-    </div>
-  </div>
 
-  <script src="https://code.jquery.com/jquery-2.2.2.min.js"></script>
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="/favico.js"></script>
-  <script src="/main.js"></script>
-  <script> 
+    <script src="https://code.jquery.com/jquery-2.2.2.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/favico.js"></script>
+    <script src="/main.js"></script>
+    <script>
+      // Get the modal
+      var modal = document.getElementById("howTo");
 
-  </script>
-</body>
+      // Get the button that opens the modal
+      var btn = document.getElementById("myBtn");
+
+      // Get the <span> element that closes the modal
+      var span = document.getElementsByClassName("close")[0];
+
+      // When the user clicks the button, open the modal
+      btn.onclick = function() {
+        modal.style.display = "block";
+      };
+
+      // When the user clicks on <span> (x), close the modal
+      span.onclick = function() {
+        modal.style.display = "none";
+      };
+
+      // When the user clicks anywhere outside of the modal, close it
+      window.onclick = function(event) {
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      };
+    </script>
+
+    <script></script>
+  </body>
 </html>
